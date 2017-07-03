@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
@@ -26,6 +27,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -60,6 +63,7 @@ public class ArticleDetailFragment extends Fragment implements
     private int mScrollY;
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
+
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -151,7 +155,7 @@ public class ArticleDetailFragment extends Fragment implements
         });
 
         bindViews();
-        updateStatusBar();
+       // updateStatusBar();
         return mRootView;
     }
 
@@ -161,13 +165,46 @@ public class ArticleDetailFragment extends Fragment implements
             float f = progress(mScrollY,
                     mStatusBarFullOpacityBottom - mTopInset * 3,
                     mStatusBarFullOpacityBottom - mTopInset);
-            color = Color.argb((int) (255 * f),
+            color = Color.rgb(
                     (int) (Color.red(mMutedColor) * 0.9),
                     (int) (Color.green(mMutedColor) * 0.9),
                     (int) (Color.blue(mMutedColor) * 0.9));
         }
         mStatusBarColorDrawable.setColor(color);
         mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
+    }
+
+
+
+    private void meanColor(Bitmap bitmap){
+        int redBucket = 0;
+        int greenBucket = 0;
+        int blueBucket = 0;
+        int pixelCount = 0;
+
+        for (int y = 0; y < bitmap.getHeight(); y++)
+        {
+            for (int x = 0; x < bitmap.getWidth(); x++)
+            {
+                int c = bitmap.getPixel(x, y);
+                bitmap.getPixel(x,y);
+
+                pixelCount++;
+                redBucket += Color.red(c);
+                greenBucket += Color.green(c);
+                blueBucket += Color.blue(c);
+                // does alpha matter?
+            }
+        }
+        int color = Color.rgb(redBucket/pixelCount,
+                              greenBucket/pixelCount,
+                              blueBucket/pixelCount);
+        String hexColor = String.format("#%06X", (0xFFFFFF & color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getActivity().getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor(hexColor));
+        }
     }
 
     static float progress(float v, float min, float max) {
@@ -238,6 +275,7 @@ public class ArticleDetailFragment extends Fragment implements
                         @Override
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
+                            meanColor(bitmap);
                             if (bitmap != null) {
                                 Palette p = Palette.generate(bitmap, 12);
                                 mMutedColor = p.getDarkMutedColor(0xFF333333);
