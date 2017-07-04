@@ -119,14 +119,14 @@ public class ArticleDetailFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
-                mRootView.findViewById(R.id.draw_insets_frame_layout);
-        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
-            @Override
-            public void onInsetsChanged(Rect insets) {
-                mTopInset = insets.top;
-            }
-        });
+//        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
+//                mRootView.findViewById(R.id.draw_insets_frame_layout);
+//        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
+//            @Override
+//            public void onInsetsChanged(Rect insets) {
+//                mTopInset = insets.top;
+//            }
+//        });
 
         mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
@@ -171,7 +171,7 @@ public class ArticleDetailFragment extends Fragment implements
                     (int) (Color.blue(mMutedColor) * 0.9));
         }
         mStatusBarColorDrawable.setColor(color);
-        mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
+    //    mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
     }
 
 
@@ -181,29 +181,30 @@ public class ArticleDetailFragment extends Fragment implements
         int greenBucket = 0;
         int blueBucket = 0;
         int pixelCount = 0;
-
-        for (int y = 0; y < bitmap.getHeight(); y++)
-        {
-            for (int x = 0; x < bitmap.getWidth(); x++)
+        if(bitmap != null){
+            for (int y = 0; y < bitmap.getHeight(); y++)
             {
-                int c = bitmap.getPixel(x, y);
-                bitmap.getPixel(x,y);
+                for (int x = 0; x < bitmap.getWidth(); x++)
+                {
+                    int c = bitmap.getPixel(x, y);
+                    bitmap.getPixel(x,y);
 
-                pixelCount++;
-                redBucket += Color.red(c);
-                greenBucket += Color.green(c);
-                blueBucket += Color.blue(c);
-                // does alpha matter?
+                    pixelCount++;
+                    redBucket += Color.red(c);
+                    greenBucket += Color.green(c);
+                    blueBucket += Color.blue(c);
+                    // does alpha matter?
+                }
             }
-        }
-        int color = Color.rgb(redBucket/pixelCount,
-                              greenBucket/pixelCount,
-                              blueBucket/pixelCount);
-        String hexColor = String.format("#%06X", (0xFFFFFF & color));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getActivity().getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.parseColor(hexColor));
+            int color = Color.rgb(redBucket/pixelCount,
+                    greenBucket/pixelCount,
+                    blueBucket/pixelCount);
+            String hexColor = String.format("#%06X", (0xFFFFFF & color));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = getActivity().getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.parseColor(hexColor));
+            }
         }
     }
 
